@@ -60,4 +60,14 @@ public interface GameOfThronesAPI {abstract
     Call<List<House>> getHousesByPage(@Query("page") int page,
                                       @Query("pageSize") int pageSize);
 
+    @GET("Houses")
+    Call<List<House>> searchHouses(@Query("name") String name,
+                                 @Query("region") String region,
+                                 @Query("words") String words,
+                                @Query("hasWords") Boolean hasWords,
+                                @Query("hasTitles") Boolean hasTitles,
+                                @Query("hasSeats") Boolean hasSeats,
+                                @Query("hasDiedOut") Boolean hasDiedOut,
+                                   @Query("hasAncestralWeapons") Boolean hasAncesteralWeapons);
+
 }
