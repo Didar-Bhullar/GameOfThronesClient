@@ -22,7 +22,7 @@ public class GameOfThronesClient {
     private static Retrofit retrofit = null;
     private static GameOfThronesAPI gameOfThronesAPI = null;
 
-    private GameOfThronesClient(){
+    private GameOfThronesClient() {
         retrofit = new Retrofit.Builder()
                 .baseUrl(URL.BASE.getUrl())
                 .addConverterFactory(GsonConverterFactory.create())
@@ -30,7 +30,7 @@ public class GameOfThronesClient {
         gameOfThronesAPI = retrofit.create(GameOfThronesAPI.class);
     }
 
-    private GameOfThronesClient(File cacheFile, int cacheSize){
+    private GameOfThronesClient(File cacheFile, int cacheSize) {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .cache(new Cache(cacheFile, cacheSize))
                 .build();
@@ -43,21 +43,21 @@ public class GameOfThronesClient {
         gameOfThronesAPI = retrofit.create(GameOfThronesAPI.class);
     }
 
-    public static GameOfThronesClient getClient(){
-        if (gameofThronesClient == null){
-           gameofThronesClient = new GameOfThronesClient();
+    public static GameOfThronesClient getClient() {
+        if (gameofThronesClient == null) {
+            gameofThronesClient = new GameOfThronesClient();
         }
         return gameofThronesClient;
     }
 
-    public static GameOfThronesClient getClientWithCache(File cacheFile, int cacheSize){
-        if (gameofThronesClient == null){
+    public static GameOfThronesClient getClientWithCache(File cacheFile, int cacheSize) {
+        if (gameofThronesClient == null) {
             gameofThronesClient = new GameOfThronesClient(cacheFile, cacheSize);
         }
         return gameofThronesClient;
     }
 
-    private static Optional<String> getNextUrl(Response response) {
+    private static Optional<String> getNextUrl(Response<? extends List> response) {
         Headers header = response.headers();
         String link = response.headers().get("link");
         if (link.contains("next")) {
@@ -67,54 +67,65 @@ public class GameOfThronesClient {
         return Optional.empty();
     }
 
-    public List<Book> getAllBooks() throws IOException {
-        List<Book> bookList = new ArrayList<>();
-        Call<List<Book>> call = gameOfThronesAPI.getAllBooks(URL.BOOKS.getUrl());
-        Response<List<Book>> response = call.execute();
-        bookList.addAll(response.body());
+    private static <T> List<T> getAll(Call<List<T>> call, URL endpoint) throws IOException {
+        List<T> modelList = new ArrayList<>();
+        Response<List<T>> response = call.execute();
+        modelList.addAll(response.body());
 
         Optional<String> nextUrlOptional = getNextUrl(response);
-        while(nextUrlOptional.isPresent()){
+        while (nextUrlOptional.isPresent()) {
             String url = nextUrlOptional.get();
-            call = gameOfThronesAPI.getAllBooks(url);
-            response = call.execute();
-            bookList.addAll(response.body());
-            nextUrlOptional = getNextUrl(response);
+            if (endpoint == URL.BOOKS) {
+                Call<List<Book>> bookCall = gameOfThronesAPI.getAllBooks(url);
+                Response<List<Book>> new_response = bookCall.execute();
+                List<Book> books = new_response.body();
+                modelList.addAll((List<T>) books);
+                nextUrlOptional = getNextUrl(new_response);
+            } else if (endpoint == URL.CHARACTERS) {
+                Call<List<Character>> characterCall = gameOfThronesAPI.getAllCharacters(url);
+                Response<List<Character>> new_response = characterCall.execute();
+                List<Character> characters = new_response.body();
+                modelList.addAll((List<T>) characters);
+                nextUrlOptional = getNextUrl(new_response);
+            } else {
+                Call<List<House>> houseCall = gameOfThronesAPI.getAllHouses(url);
+                Response<List<House>> new_response = houseCall.execute();
+                List<House> houseList = new_response.body();
+                modelList.addAll((List<T>) houseList);
+                nextUrlOptional = getNextUrl(new_response);
+            }
         }
+        return modelList;
+    }
+
+    public static void main(String[] args) throws IOException {
+        Boolean a = true;
+        int cacheSize = 10 * 1024 * 1024;
+        GameOfThronesClient gameOfThronesClient = GameOfThronesClient.getClientWithCache(new File("cache"), cacheSize);
+        List<House> chars = gameOfThronesClient.searchHouses(null, null, null, null, true, null, true, false);
+        for (House chara : chars) {
+            System.out.println(chara.getUrl());
+        }
+    }
+
+    public List<Book> getAllBooks() throws IOException {
+        Call<List<Book>> call = gameOfThronesAPI.getAllBooks(URL.BOOKS.getUrl());
+        List list = getAll(call, URL.BOOKS);
+        List<Book> bookList = (List<Book>) (List<?>) list;
         return bookList;
     }
 
-    public List<Character> getAllCharacters() throws IOException{
-        List<Character> characterList = new ArrayList<>();
+    public List<Character> getAllCharacters() throws IOException {
         Call<List<Character>> call = gameOfThronesAPI.getAllCharacters(URL.CHARACTERS.getUrl());
-        Response<List<Character>> response = call.execute();
-        characterList.addAll(response.body());
-
-        Optional<String> nextUrlOptional = getNextUrl(response);
-        while(nextUrlOptional.isPresent()){
-            String url = nextUrlOptional.get();
-            call = gameOfThronesAPI.getAllCharacters(url);
-            response = call.execute();
-            characterList.addAll(response.body());
-            nextUrlOptional = getNextUrl(response);
-        }
+        List list = getAll(call, URL.CHARACTERS);
+        List<Character> characterList = (List<Character>) (List<?>) list;
         return characterList;
     }
 
-    public List<House> getAllHouses() throws IOException{
-        List<House> houseList = new ArrayList<>();
+    public List<House> getAllHouses() throws IOException {
         Call<List<House>> call = gameOfThronesAPI.getAllHouses(URL.HOUSES.getUrl());
-        Response<List<House>> response = call.execute();
-        houseList.addAll(response.body());
-
-        Optional<String> nextUrlOptional = getNextUrl(response);
-        while(nextUrlOptional.isPresent()){
-            String url = nextUrlOptional.get();
-            call = gameOfThronesAPI.getAllHouses(url);
-            response = call.execute();
-            houseList.addAll(response.body());
-            nextUrlOptional = getNextUrl(response);
-        }
+        List list = getAll(call, URL.HOUSES);
+        List<House> houseList = (List<House>) (List<?>) list;
         return houseList;
     }
 
@@ -155,64 +166,26 @@ public class GameOfThronesClient {
     }
 
     public List<Book> searchBooks(String name, String fromReleasedDate, String toReleasedDate) throws IOException {
-        List<Book> bookList = new ArrayList<>();
         Call<List<Book>> call = gameOfThronesAPI.searchBooks(name, fromReleasedDate, toReleasedDate);
-        Response<List<Book>> response = call.execute();
-        bookList.addAll(response.body());
-
-        Optional<String> nextUrlOptional = getNextUrl(response);
-        while(nextUrlOptional.isPresent()){
-            String url = nextUrlOptional.get();
-            call = gameOfThronesAPI.getAllBooks(url);
-            response = call.execute();
-            bookList.addAll(response.body());
-            nextUrlOptional = getNextUrl(response);
-        }
+        List list = getAll(call, URL.BOOKS);
+        List<Book> bookList = (List<Book>) (List<?>) list;
         return bookList;
     }
 
-    public List<Character> searchCharacters(String name, String gender, String culture, String born, String died, Boolean isAlive) throws IOException {
-        List<Character> characterList = new ArrayList<>();
+    public List<Character> searchCharacters(String name, String gender, String culture,
+                                            String born, String died, Boolean isAlive) throws IOException {
         Call<List<Character>> call = gameOfThronesAPI.searchCharacters(name, gender, culture, born, died, isAlive);
-        Response<List<Character>> response = call.execute();
-        characterList.addAll(response.body());
-
-        Optional<String> nextUrlOptional = getNextUrl(response);
-        while(nextUrlOptional.isPresent()){
-            String url = nextUrlOptional.get();
-            call = gameOfThronesAPI.getAllCharacters(url);
-            response = call.execute();
-            characterList.addAll(response.body());
-            nextUrlOptional = getNextUrl(response);
-        }
+        List list = getAll(call, URL.CHARACTERS);
+        List<Character> characterList = (List<Character>) (List<?>) list;
         return characterList;
     }
 
-    public List<House> searchHouses(String name, String region, String words, Boolean hasWords, Boolean hasTitles, Boolean hasSeats, Boolean hasDiedOut, Boolean hasAncestralWeapons) throws IOException {
-        List<House> houseList = new ArrayList<>();
+    public List<House> searchHouses(String name, String region, String words, Boolean hasWords, Boolean hasTitles,
+                                    Boolean hasSeats, Boolean hasDiedOut, Boolean hasAncestralWeapons) throws IOException {
         Call<List<House>> call = gameOfThronesAPI.searchHouses(name, region, words, hasWords, hasTitles, hasSeats, hasDiedOut, hasAncestralWeapons);
-        Response<List<House>> response = call.execute();
-        houseList.addAll(response.body());
-
-        Optional<String> nextUrlOptional = getNextUrl(response);
-        while(nextUrlOptional.isPresent()){
-            String url = nextUrlOptional.get();
-            call = gameOfThronesAPI.getAllHouses(url);
-            response = call.execute();
-            houseList.addAll(response.body());
-            nextUrlOptional = getNextUrl(response);
-        }
+        List list = getAll(call, URL.HOUSES);
+        List<House> houseList = (List<House>) (List<?>) list;
         return houseList;
-    }
-
-    public static void main(String[] args) throws IOException {
-        Boolean a = true;
-        int cacheSize = 10 * 1024 * 1024;
-        GameOfThronesClient gameOfThronesClient = GameOfThronesClient.getClientWithCache(new File("cache"), cacheSize);
-        List<House> chars = gameOfThronesClient.searchHouses(null, null, null, null, null, null, true, null);
-        for (House chara: chars){
-            System.out.println(chara.getUrl());
-        }
     }
 
     private enum URL {
@@ -227,7 +200,7 @@ public class GameOfThronesClient {
             this.url = url;
         }
 
-        public String getUrl(){
+        public String getUrl() {
             return url;
         }
     }
