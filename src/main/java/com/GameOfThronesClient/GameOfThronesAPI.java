@@ -11,7 +11,7 @@ import retrofit2.http.Url;
 
 import java.util.List;
 
-public interface GameOfThronesAPI {abstract
+public interface GameOfThronesAPI {
 
 
     // Book
@@ -43,11 +43,11 @@ public interface GameOfThronesAPI {abstract
 
     @GET("characters")
     Call<List<Character>> searchCharacters(@Query("name") String name,
-                                      @Query("gender") String gender,
-                                      @Query("culture") String culture,
-                                      @Query("born") String born,
-                                      @Query("died") String died,
-                                      @Query("isAlive") Boolean isAlive);
+                                           @Query("gender") String gender,
+                                           @Query("culture") String culture,
+                                           @Query("born") String born,
+                                           @Query("died") String died,
+                                           @Query("isAlive") Boolean isAlive);
 
     //House
     @GET
@@ -62,12 +62,12 @@ public interface GameOfThronesAPI {abstract
 
     @GET("Houses")
     Call<List<House>> searchHouses(@Query("name") String name,
-                                 @Query("region") String region,
-                                 @Query("words") String words,
-                                @Query("hasWords") Boolean hasWords,
-                                @Query("hasTitles") Boolean hasTitles,
-                                @Query("hasSeats") Boolean hasSeats,
-                                @Query("hasDiedOut") Boolean hasDiedOut,
+                                   @Query("region") String region,
+                                   @Query("words") String words,
+                                   @Query("hasWords") Boolean hasWords,
+                                   @Query("hasTitles") Boolean hasTitles,
+                                   @Query("hasSeats") Boolean hasSeats,
+                                   @Query("hasDiedOut") Boolean hasDiedOut,
                                    @Query("hasAncestralWeapons") Boolean hasAncesteralWeapons);
 
 }

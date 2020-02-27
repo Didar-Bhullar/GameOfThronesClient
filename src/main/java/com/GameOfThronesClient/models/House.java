@@ -83,4 +83,5 @@ public class House {
     public List<String> getSwornMembers() {
         return swornMembers;
     }
+
 }
