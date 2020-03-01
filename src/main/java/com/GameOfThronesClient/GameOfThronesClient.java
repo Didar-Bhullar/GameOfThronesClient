@@ -22,7 +22,7 @@ public class GameOfThronesClient {
     private static Retrofit retrofit = null;
     private static GameOfThronesAPI gameOfThronesAPI = null;
 
-    private GameOfThronesClient() {
+    GameOfThronesClient() {
         retrofit = new Retrofit.Builder()
                 .baseUrl(URL.BASE.getUrl())
                 .addConverterFactory(GsonConverterFactory.create())
@@ -96,16 +96,6 @@ public class GameOfThronesClient {
             }
         }
         return modelList;
-    }
-
-    public static void main(String[] args) throws IOException {
-        Boolean a = true;
-        int cacheSize = 10 * 1024 * 1024;
-        GameOfThronesClient gameOfThronesClient = GameOfThronesClient.getClientWithCache(new File("cache"), cacheSize);
-        List<House> chars = gameOfThronesClient.searchHouses(null, null, null, null, true, null, true, false);
-        for (House chara : chars) {
-            System.out.println(chara.getUrl());
-        }
     }
 
     public List<Book> getAllBooks() throws IOException {
