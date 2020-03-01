@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/Didar-Bhullar/GameOfThronesClient.svg?branch=master)](https://travis-ci.com/Didar-Bhullar/GameOfThronesClient)
 # GameOfThronesClient
 
 Adds a java wrapper around the [GoT API](https://anapioficeandfire.com)
