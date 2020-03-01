@@ -11,7 +11,7 @@ public class Character {
     private String gender;
     private String culture;
     private String born;
-    private Boolean died;
+    private String died;
     private List<String> titles;
     private List<String> aliases;
     private List<String> allegiances;
@@ -61,7 +61,7 @@ public class Character {
     /**
      * @return textual representation of when and where this character died.
      */
-    public Boolean getDied() {
+    public String getDied() {
         return died;
     }
 
