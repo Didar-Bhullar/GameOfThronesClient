@@ -1,5 +1,6 @@
 # GameOfThronesClient
 [![Build Status](https://travis-ci.com/Didar-Bhullar/GameOfThronesClient.svg?branch=master)](https://travis-ci.com/Didar-Bhullar/GameOfThronesClient) [![codecov](https://codecov.io/gh/Didar-Bhullar/GameOfThronesClient/branch/master/graph/badge.svg)](https://codecov.io/gh/Didar-Bhullar/GameOfThronesClient) 
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-green.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 
 Adds a java wrapper around the [GoT API](https://anapioficeandfire.com)
