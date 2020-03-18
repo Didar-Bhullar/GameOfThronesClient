@@ -9,14 +9,14 @@ Adds a java wrapper around the [GoT API](https://anapioficeandfire.com)
 ## Getting Started
 
 Get the instance of the gameOfThronesClient <br>
-```
+```Java
  public static void main(String[] args){
         GameOfThronesClient gotClient = getClient();
     }
 ```
 You can get a version of the client with automatic caching instead if you want.<br>
 This will cache all the calls to whatever directory you supply as the cacheFile.
-```
+```Java
     public static void main(String[] args){
         File cacheFile = new File("cacheFile");
         int cacheSize = 10 * 1024 * 1024; // 10 MB
@@ -35,7 +35,7 @@ These models have various getters on them for easily retreiving information.<br>
 Take a look at these [model javadocs](https://didar-bhullar.github.io/GameOfThronesClient/docs/com/GameOfThronesClient/models/package-summary.html)
 
 #### Example: Getting all Books
-```
+```Java
 public static void main(String[] args) throws IOException {
         GameOfThronesClient gotClient = getClient();
 
@@ -51,11 +51,11 @@ public static void main(String[] args) throws IOException {
     }
 ```
 #### Example: Getting Character by id
-```
+```Java
 public static void main(String[] args) throws IOException {
         GameOfThronesClient gotClient = getClient();
 
-        Character character = gotClient.getCharacter(100);  //getCharacter returns a single character
+        Character character = gotClient.getCharacter(100);  //Returns a single character
 
         // use various getters to get information about this character
         System.out.println(character.getBorn());
@@ -68,7 +68,7 @@ public static void main(String[] args) throws IOException {
 <br>
 In this case I only cared that the book Im searching for was made after 1990-01-01 and before 2002-01-01.<br>
 I did not care for the name. <br>
-```
+```Java
     public static void main(String[] args) throws IOException {
         GameOfThronesClient gotClient = getClient();
 
